@@ -1,0 +1,22 @@
+{
+  "name": "link-spider",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xuchenchenBoy/link-spider.git"
+  },
+  "keywords": [
+    "link"
+  ],
+  "author": "xuchenchenboy@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xuchenchenBoy/link-spider/issues"
+  },
+  "homepage": "https://github.com/xuchenchenBoy/link-spider#readme"
+}
