@@ -1,5 +1,6 @@
 let superagent = require('superagent');
 const cheerio = require('cheerio');
+const mysql = require('mysql');
 // extend with Request#proxy()
 superagent = require('superagent-proxy')(superagent);
 
@@ -9,7 +10,14 @@ let isNextUrl = true;
 let TITLE = ''; // 标题
 const allContent = {}; // 评论内容 { name: '', profileUrl:'', motto: '', avatar: '', time: '', comment: '' }
 
-let count = 0;
+// 数据库
+var connection = mysql.createConnection({
+  host     : '127.0.0.1',
+  user     : 'root',
+  password : 'xuchenmysql9759',
+  database : 'link'
+});
+connection.connect();
 
 // 节点
 const ELEMENTS = {
@@ -47,7 +55,6 @@ function getUrlSuc(res) {
   const title = $(titEl).text();
   if (!TITLE && title) {
     TITLE = title;
-    console.log('title=', title)
   }
 
   // 获得回答
@@ -63,10 +70,6 @@ function getUrlSuc(res) {
 // 解析个人信息
 function parseInfo(childEl) {
   const quoteEl = $(childEl).find(ELEMENTS.quoteEl)
-  if (quoteEl.length) {
-    count++;
-    console.log('count---', count)
-  }
   if (quoteEl.length) return; // 去除评论他人的内容 
 
   const profileUrl = $(ELEMENTS.profileEl, childEl).attr('href'); // 简介地址
@@ -99,6 +102,28 @@ function parseInfo(childEl) {
     time, 
     comment, 
   }
+
+  insertDatabase(allContent[profileUrl]);
+}
+
+// 插入数据库中
+function insertDatabase({
+  name, 
+  profileUrl, 
+  motto, 
+  avatar, 
+  time, 
+  comment,
+}) {
+  var addSql = 'INSERT INTO user_info(Id,name,profileUrl,motto,avatar, time, comment) VALUES(0,?,?,?,?,?,?)';
+  var addSqlParams = [name, profileUrl, motto, avatar, time, comment];
+  //增
+  connection.query(addSql, addSqlParams, function (err, result) {
+    if(err){
+     console.log('[INSERT ERROR] - ',err.message);
+     return;
+    }        
+  });
 }
 
 // 请求页面失败
@@ -120,17 +145,18 @@ async function init() {
       pageUrl = `${BASE_URL}${page}`
       getUrl(pageUrl);
       if (pageUrl === lastPageUrl) { // 所有页面加载结束
-        console.log('page=', page)
         clearInterval(timer);
         return;
       }
       page += 100;
     }, 3000)
-  } catch (e) {
-    console.log('e====', e)
+  } catch (err) {
+    console.log('err=', err)
   }
 }
 
 init();
+
+
 
 
